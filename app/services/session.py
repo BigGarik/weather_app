@@ -1,24 +1,11 @@
+from fastapi import Request
 from uuid import uuid4
 
-from fastapi import Request, Response
-
-
-def get_session_id(request: Request, response: Response) -> str:
+def get_user_id(request: Request) -> str:
     """
-    Получает или создает session_id для пользователя.
-    Сохраняет его в cookies на 30 дней.
+    Получает user_id из cookies или создает новый.
     """
-    user_id = request.cookies.get("session_id")
-
+    user_id = request.cookies.get("user_id")
     if not user_id:
         user_id = str(uuid4())
-        # Устанавливаем cookie на 30 дней
-        response.set_cookie(
-            key="session_id",
-            value=user_id,
-            httponly=True,
-            max_age=30 * 24 * 60 * 60,  # 30 дней в секундах
-            samesite="lax"
-        )
-
     return user_id
