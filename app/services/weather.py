@@ -1,6 +1,8 @@
+from typing import Dict, Any
+
 import httpx
 from fastapi import HTTPException
-from typing import Dict, Any
+
 
 # Словарь: weathercode -> описание с эмодзи
 WEATHER_CODE_MAP = {
@@ -27,6 +29,7 @@ WEATHER_CODE_MAP = {
 def decode_weather_code(code: int) -> str:
     return WEATHER_CODE_MAP.get(code, "🌈 Неизвестно")
 
+
 async def get_city_coordinates(city: str) -> Dict[str, float]:
     """Получение координат города через Open-Meteo Geocoding API."""
     async with httpx.AsyncClient() as client:
@@ -38,6 +41,7 @@ async def get_city_coordinates(city: str) -> Dict[str, float]:
             raise HTTPException(status_code=404, detail="Город не найден")
         results = response.json()["results"][0]
         return {"latitude": results["latitude"], "longitude": results["longitude"]}
+
 
 async def get_weather_forecast(city: str) -> Dict[str, Any]:
     coords = await get_city_coordinates(city)

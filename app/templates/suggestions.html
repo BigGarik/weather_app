@@ -7,18 +7,3 @@
   <div class="text-xs text-gray-500">{{ city.country }}</div>
 </div>
 {% endfor %}
-
-<script>
-function selectCity(cityName) {
-  document.querySelector('input[name="city"]').value = cityName;
-  document.getElementById('suggestions').innerHTML = '';
-  document.querySelector('form').submit();
-}
-
-// Скрыть подсказки при клике вне
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('#suggestions') && !e.target.matches('input[name="city"]')) {
-    document.getElementById('suggestions').innerHTML = '';
-  }
-});
-</script>

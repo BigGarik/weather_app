@@ -6,13 +6,13 @@
   <title>Погода</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/main.css">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex items-center justify-center font-sans p-4">
   <div class="w-full max-w-4xl space-y-6">
-    <!-- 🔍 Строка поиска с автодополнением -->
-    <form class="bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 justify-between relative z-20" action="/weather" method="get">
-      <div class="relative w-full z-30">
+    <!-- Строка поиска с автодополнением -->
+    <form class="search-form bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 justify-between" action="/weather" method="get">
+      <div class="relative w-full">
         <input
           type="text"
           name="city"
@@ -30,7 +30,7 @@
         <!-- Контейнер для подсказок -->
         <div
           id="suggestions"
-          class="absolute bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-60 overflow-y-auto shadow-lg z-50 hidden-empty"
+          class="suggestions-container absolute bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-60 overflow-y-auto shadow-lg"
           style="display: none;"
         ></div>
       </div>
@@ -42,7 +42,7 @@
       </button>
     </form>
 
-    <!-- 🕒 Предложение последнего города -->
+    <!-- Предложение последнего города -->
     {% if last_city and not forecast %}
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 text-center">
         <div class="text-sm text-gray-600 mb-2">Последний просмотр</div>
@@ -57,8 +57,8 @@
     {% endif %}
 
     {% if forecast or error %}
-      <!-- 📊 Основной блок результатов -->
-      <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl space-y-6 relative z-10">
+      <!-- Основной блок результатов -->
+      <div class="results-block bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl space-y-6">
         {% if forecast %}
           <div class="flex flex-col lg:flex-row gap-8">
             <!-- Левая часть - текущая погода -->
@@ -119,30 +119,6 @@
     {% endif %}
   </div>
 
-  <style>
-    /* Скрываем контейнер подсказок если он пустой */
-    #suggestions:empty {
-      display: none !important;
-    }
-
-    /* Показываем контейнер подсказок если есть содержимое */
-    #suggestions:not(:empty) {
-      display: block !important;
-    }
-  </style>
-
-  <script>
-    // Улучшенная обработка автодополнения
-    document.addEventListener('DOMContentLoaded', function() {
-      const cityInput = document.querySelector('input[name="city"]');
-      const suggestionsDiv = document.getElementById('suggestions');
-
-      // Фокус на поле ввода при загрузке страницы
-      if (cityInput && !cityInput.value) {
-        cityInput.focus();
-      }
-    });
-  </script>
-
+  <script src="/static/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+body {
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Скрываем контейнер подсказок если он пустой */
+#suggestions:empty {
+  display: none !important;
+}
+
+/* Показываем контейнер подсказок если есть содержимое */
+#suggestions:not(:empty) {
+  display: block !important;
+}
+
+/* Z-index иерархия для правильного отображения */
+.search-form {
+  position: relative;
+  z-index: 20;
+}
+
+.suggestions-container {
+  position: absolute;
+  z-index: 100 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.results-block {
+  position: relative;
+  z-index: 10;
+}
