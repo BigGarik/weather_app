@@ -31,7 +31,7 @@ def decode_weather_code(code: int) -> str:
 
 
 async def get_city_coordinates(city: str) -> Dict[str, float]:
-    """Получение координат города через Open-Meteo Geocoding API."""
+    """Получение города через Open-Meteo API."""
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "https://geocoding-api.open-meteo.com/v1/search",
@@ -44,6 +44,7 @@ async def get_city_coordinates(city: str) -> Dict[str, float]:
 
 
 async def get_weather_forecast(city: str) -> Dict[str, Any]:
+    """Запрос погоды через Open-Meteo API."""
     coords = await get_city_coordinates(city)
     async with httpx.AsyncClient() as client:
         response = await client.get(

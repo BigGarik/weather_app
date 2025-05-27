@@ -1,10 +1,10 @@
 import os
 from datetime import datetime
+
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Убеждаемся что директория для БД существует
 os.makedirs("app/data", exist_ok=True)
 
 DATABASE_URL = "sqlite:///app/data/history.db"
@@ -23,7 +23,6 @@ class SearchHistory(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 
-# Создаем таблицы
 Base.metadata.create_all(bind=engine)
 
 

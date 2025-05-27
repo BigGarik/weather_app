@@ -37,6 +37,7 @@ async def session_middleware(request: Request, call_next):
 
 @app.get("/")
 async def home(request: Request, db: Session = Depends(get_db)):
+    """Главная страница."""
     user_id = get_user_id(request)
     last_city = get_last_city(db, user_id)
 
@@ -55,6 +56,7 @@ async def weather(
         city: str,
         db: Session = Depends(get_db)
 ):
+    """Запрос погоды."""
     user_id = get_user_id(request)
 
     try:
@@ -88,5 +90,6 @@ async def suggest_cities(request: Request, city: Optional[str] = Query(None)):
 
 @app.get("/api/city-stats")
 async def city_stats(db: Session = Depends(get_db)):
+    """Статистика поиска."""
     stats = get_city_stats(db)
     return {"city_stats": stats}
