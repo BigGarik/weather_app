@@ -42,6 +42,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     last_city = get_last_city(db, user_id)
 
     return templates.TemplateResponse(
+        request,
         "index.html",
         {
             "request": request,
@@ -64,11 +65,13 @@ async def weather(
         save_search(db, user_id, city)
 
         return templates.TemplateResponse(
+            request,
             "index.html",
             {"request": request, "forecast": forecast, "city": city, "last_city": city}
         )
     except HTTPException as e:
         return templates.TemplateResponse(
+            request,
             "index.html",
             {"request": request, "error": e.detail, "last_city": get_last_city(db, user_id)}
         )
@@ -83,6 +86,7 @@ async def suggest_cities(request: Request, city: Optional[str] = Query(None)):
         suggestions = await search_cities(city.strip())
 
     return templates.TemplateResponse(
+        request,
         "suggestions.html",
         {"request": request, "suggestions": suggestions}
     )
