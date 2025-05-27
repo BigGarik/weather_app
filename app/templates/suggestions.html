@@ -1,0 +1,22 @@
+{% for city in suggestions %}
+<div
+  class="px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+  onclick="selectCity('{{ city.name }}')"
+>
+  <div class="font-medium text-gray-800">{{ city.name }}</div>
+  <div class="text-xs text-gray-500">{{ city.country }}</div>
+</div>
+{% endfor %}
+
+<script>
+function selectCity(cityName) {
+  document.querySelector('input[name="city"]').value = cityName;
+  document.getElementById('suggestions').innerHTML = '';
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#suggestions') && !e.target.matches('input[name="city"]')) {
+    document.getElementById('suggestions').innerHTML = '';
+  }
+});
+</script>

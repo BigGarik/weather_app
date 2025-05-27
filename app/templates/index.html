@@ -10,63 +10,117 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex items-center justify-center font-sans p-4">
   <div class="w-full max-w-4xl space-y-6">
-    <!-- 🔍 Строка поиска -->
+
+    <!-- 👋 Приветственное сообщение -->
+    {% if welcome_message and not forecast %}
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center text-green-700">
+        {{ welcome_message }}
+      </div>
+    {% endif %}
+
+    <!-- 🔍 Строка поиска с автодополнением -->
     <form class="bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 justify-between" action="/weather" method="get">
       <div class="relative w-full">
         <input
           type="text"
           name="city"
-          placeholder="Введите город"
-          class="flex-grow p-2 border rounded-md w-full focus:ring-2 focus:ring-blue-400"
+          placeholder="Введите город (например: Москва, Ташкент, Лондон)"
+          class="flex-grow p-3 border border-gray-200 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all duration-200"
           hx-get="/api/cities/suggest"
           hx-trigger="keyup changed delay:300ms"
           hx-target="#suggestions"
           hx-swap="innerHTML"
+          hx-include="this"
+          autocomplete="off"
+          {% if city %}value="{{ city }}"{% elif last_city and not forecast %}placeholder="Попробуйте: {{ last_city }}"{% endif %}
         />
-        <div id="suggestions" class="absolute bg-white border rounded-md w-full mt-1 max-h-40 overflow-y-auto"></div>
+
+        <!-- Кнопка быстрого выбора последнего города -->
+        {% if last_city and not forecast and not city %}
+        <button
+          type="button"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800 px-2 py-1 text-sm"
+          onclick="document.querySelector('input[name=city]').value='{{ last_city }}'"
+          title="Использовать {{ last_city }}"
+        >
+          📍
+        </button>
+        {% endif %}
+
+        <!-- Контейнер для подсказок -->
+        <div
+          id="suggestions"
+          class="absolute bg-white border border-gray-200 rounded-lg w-full mt-1 max-h-60 overflow-y-auto shadow-lg z-50 hidden-empty"
+          style="display: none;"
+        ></div>
       </div>
       <button
         type="submit"
-        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+        class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium min-w-[120px]"
       >
-        Прогноз
+        🌤 Прогноз
       </button>
     </form>
-    {% if last_city %}
-      <div class="text-center">
-        <a href="/weather?city={{ last_city }}" class="text-blue-600 hover:underline">Посмотреть погоду в {{ last_city }}?</a>
+
+    <!-- 🕒 Предложение последнего города -->
+    {% if last_city and not forecast %}
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 text-center">
+        <div class="text-sm text-gray-600 mb-2">Последний просмотр</div>
+        <a
+          href="/weather?city={{ last_city }}"
+          class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+        >
+          <span class="mr-2">📍</span>
+          Показать погоду в {{ last_city }}
+        </a>
       </div>
     {% endif %}
 
     {% if forecast or error %}
-      <!-- 📊 Основной блок -->
+      <!-- 📊 Основной блок результатов -->
       <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl space-y-6">
         {% if forecast %}
-          <div class="flex flex-col md:flex-row gap-8">
-            <!-- Левая часть -->
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Левая часть - текущая погода -->
             <div class="flex-1">
-              <h1 class="text-2xl text-blue-700 font-bold">{{ city }}</h1>
-              <p class="text-sm text-gray-500 mb-4">Текущая погода</p>
-              <div class="flex items-center space-x-4 mb-6">
-                <div class="text-5xl font-extrabold text-orange-500">{{ forecast.current.temperature }}°</div>
-                <div class="text-lg">{{ forecast.current.weatherdesc }}</div>
+              <div class="flex items-center gap-3 mb-4">
+                <h1 class="text-3xl text-blue-700 font-bold">{{ city }}</h1>
+                <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">сейчас</span>
               </div>
-              <div class="grid grid-cols-2 gap-2 text-sm text-gray-700">
-                <div><span class="font-medium">Ветер:</span> {{ forecast.current.wind }} м/с</div>
-                <div><span class="font-medium">Давление:</span> {{ forecast.current.pressure }} мм рт. ст.</div>
-                <div><span class="font-medium">Влажность:</span> {{ forecast.current.humidity }}%</div>
+
+              <div class="flex items-center space-x-6 mb-6">
+                <div class="text-6xl font-extrabold text-orange-500">{{ forecast.current.temperature }}°</div>
+                <div class="text-xl text-gray-700">{{ forecast.current.weatherdesc }}</div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="bg-blue-50 p-3 rounded-lg">
+                  <span class="font-medium text-blue-700">💨 Ветер:</span>
+                  <div class="text-gray-800 font-semibold">{{ forecast.current.wind }} м/с</div>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                  <span class="font-medium text-purple-700">🌡 Давление:</span>
+                  <div class="text-gray-800 font-semibold">{{ forecast.current.pressure }} мм рт. ст.</div>
+                </div>
+                <div class="bg-cyan-50 p-3 rounded-lg col-span-2">
+                  <span class="font-medium text-cyan-700">💧 Влажность:</span>
+                  <div class="text-gray-800 font-semibold">{{ forecast.current.humidity }}%</div>
+                </div>
               </div>
             </div>
 
-            <!-- Правая часть -->
+            <!-- Правая часть - почасовой прогноз -->
             <div class="flex-1">
-              <h2 class="text-lg font-semibold text-gray-800 mb-4">Прогноз на 24 часа</h2>
-              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-center text-sm">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span class="mr-2">⏰</span>
+                Прогноз на 24 часа
+              </h2>
+              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-center text-sm">
                 {% for hour in forecast.hourly %}
-                  <div class="bg-yellow-50 hover:bg-yellow-100 p-3 rounded-lg shadow-sm transition">
-                    <div class="text-xs text-gray-500">{{ hour.time[11:16] }}</div>
-                    <div class="text-xl font-bold text-orange-600">{{ hour.temperature }}°</div>
-                    <div class="mt-1 text-gray-700">{{ hour.weatherdesc }}</div>
+                  <div class="bg-gradient-to-br from-yellow-50 to-orange-50 hover:from-yellow-100 hover:to-orange-100 p-3 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md">
+                    <div class="text-xs text-gray-500 font-medium">{{ hour.time[11:16] }}</div>
+                    <div class="text-2xl font-bold text-orange-600 my-1">{{ hour.temperature }}°</div>
+                    <div class="text-gray-700 text-xs">{{ hour.weatherdesc }}</div>
                   </div>
                 {% endfor %}
               </div>
@@ -75,10 +129,40 @@
         {% endif %}
 
         {% if error %}
-          <div class="text-center text-red-500 font-semibold">{{ error }}</div>
+          <div class="text-center p-6">
+            <div class="text-6xl mb-4">😔</div>
+            <div class="text-red-600 font-semibold text-lg">{{ error }}</div>
+            <div class="text-gray-500 mt-2">Попробуйте ввести название города по-другому</div>
+          </div>
         {% endif %}
       </div>
     {% endif %}
   </div>
+
+  <style>
+    /* Скрываем контейнер подсказок если он пустой */
+    #suggestions:empty {
+      display: none !important;
+    }
+
+    /* Показываем контейнер подсказок если есть содержимое */
+    #suggestions:not(:empty) {
+      display: block !important;
+    }
+  </style>
+
+  <script>
+    // Улучшенная обработка автодополнения
+    document.addEventListener('DOMContentLoaded', function() {
+      const cityInput = document.querySelector('input[name="city"]');
+      const suggestionsDiv = document.getElementById('suggestions');
+
+      // Фокус на поле ввода при загрузке страницы
+      if (cityInput && !cityInput.value) {
+        cityInput.focus();
+      }
+    });
+  </script>
+
 </body>
 </html>
