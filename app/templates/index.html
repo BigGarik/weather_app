@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Погода</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 flex items-center justify-center font-sans p-4">
+  <div class="w-full max-w-4xl space-y-6">
+    <!-- 🔍 Строка поиска -->
+    <form class="bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 justify-between" action="/weather" method="get">
+      <div class="relative w-full">
+        <input
+          type="text"
+          name="city"
+          placeholder="Введите город"
+          class="flex-grow p-2 border rounded-md w-full focus:ring-2 focus:ring-blue-400"
+          hx-get="/api/cities/suggest"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#suggestions"
+          hx-swap="innerHTML"
+        />
+        <div id="suggestions" class="absolute bg-white border rounded-md w-full mt-1 max-h-40 overflow-y-auto"></div>
+      </div>
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+      >
+        Прогноз
+      </button>
+    </form>
+    {% if last_city %}
+      <div class="text-center">
+        <a href="/weather?city={{ last_city }}" class="text-blue-600 hover:underline">Посмотреть погоду в {{ last_city }}?</a>
+      </div>
+    {% endif %}
+
+    {% if forecast or error %}
+      <!-- 📊 Основной блок -->
+      <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl space-y-6">
+        {% if forecast %}
+          <div class="flex flex-col md:flex-row gap-8">
+            <!-- Левая часть -->
+            <div class="flex-1">
+              <h1 class="text-2xl text-blue-700 font-bold">{{ city }}</h1>
+              <p class="text-sm text-gray-500 mb-4">Текущая погода</p>
+              <div class="flex items-center space-x-4 mb-6">
+                <div class="text-5xl font-extrabold text-orange-500">{{ forecast.current.temperature }}°</div>
+                <div class="text-lg">{{ forecast.current.weatherdesc }}</div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                <div><span class="font-medium">Ветер:</span> {{ forecast.current.wind }} м/с</div>
+                <div><span class="font-medium">Давление:</span> {{ forecast.current.pressure }} мм рт. ст.</div>
+                <div><span class="font-medium">Влажность:</span> {{ forecast.current.humidity }}%</div>
+              </div>
+            </div>
+
+            <!-- Правая часть -->
+            <div class="flex-1">
+              <h2 class="text-lg font-semibold text-gray-800 mb-4">Прогноз на 24 часа</h2>
+              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-center text-sm">
+                {% for hour in forecast.hourly %}
+                  <div class="bg-yellow-50 hover:bg-yellow-100 p-3 rounded-lg shadow-sm transition">
+                    <div class="text-xs text-gray-500">{{ hour.time[11:16] }}</div>
+                    <div class="text-xl font-bold text-orange-600">{{ hour.temperature }}°</div>
+                    <div class="mt-1 text-gray-700">{{ hour.weatherdesc }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        {% if error %}
+          <div class="text-center text-red-500 font-semibold">{{ error }}</div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

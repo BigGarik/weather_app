@@ -1,0 +1,7 @@
+fastapi
+fastapi-sessions
+httpx
+uvicorn
+jinja2
+sqlalchemy
+pytest
